@@ -13,7 +13,7 @@ class API(ABC):
 
 class VacancyData(ABC):
     @abstractmethod
-    def add_vacancy(self, params, url_api, *args, **kwargs):
+    def add_vacancy(self, params, api_url, *args, **kwargs):
         """
         Добавление вакансий в файл
         """
@@ -40,17 +40,19 @@ class HH(API):
         Подключение по API
         :return: response
         """
-        url_api = 'https://api.hh.ru/vacancies'
+        api_url = 'https://api.hh.ru/vacancies'
         params = {
             "text": keyword,
             "per_page": 10,
             "area": 145
         }
+        response = requests.get(api_url, params=params, verify=False)
 
-        if requests.get(url_api, params=params).status_code == 200:
-            return requests.get(url_api, params=params).json()['items']
+        if response.status_code == 200:
+            vacancies = response.json()["items"]
+            return vacancies
         else:
-            return f'Error: {requests.get(url_api, params=params).status_code}'
+            return f'Error: {requests.get(api_url, params=params).status_code}'
 
     def get_vacancies(self, keyword):
         return self.api(keyword)
@@ -62,7 +64,7 @@ class SJ(API):
         Подключение по API
         :return: response
         """
-        url_api = 'https://api.superjob.ru/2.0/vacancies/'
+        api_url = 'https://api.superjob.ru/2.0/vacancies/'
         params = {
             'keyword': keyword,
             'town': 'Санкт-Петербург',
@@ -73,7 +75,7 @@ class SJ(API):
             'X-Api-App-Id': 'v3.r.137494111.a6b43592ad3010404a6417932bb1b169d0bff73d.8da83ac6ac2fd9187fe1b5b8a7ecd1cc096ff71c',
             'Content-Type': 'application/json'
         }
-        return requests.get(url_api, params=params, headers=headers).json()
+        return requests.get(api_url, params=params, headers=headers, verify=False).json()
 
     def get_vacancies(self, keyword):
         """
